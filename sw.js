@@ -18,6 +18,9 @@ const FICHIERS = [
   "icones/icone.svg",
   "icones/icone-192.png",
   "icones/icone-512.png",
+  "js/outils.js",
+  "data/ports.js",
+  "data/oui.js",
 ];
 
 self.addEventListener("install", (ev) => {
