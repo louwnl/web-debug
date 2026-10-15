@@ -10,6 +10,7 @@ On peut aussi ouvrir `index.html` directement depuis le disque, sans serveur ni 
 
 - **Diagnostic guidé** : réponds aux questions, l'app affiche à chaque étape la commande à taper et comment lire le résultat, jusqu'à un diagnostic avec les actions à faire. Le fil en haut permet de revenir à une étape précédente.
 - **Catalogue** : toutes les commandes, classées par catégorie, avec une recherche.
+- **Mes commandes** : dans le catalogue, ajoute tes propres commandes et astuces (une variante par OS, valeurs à remplacer comprises), sans toucher au code. Elles sont gardées dans le navigateur ; « Exporter » les enregistre dans un fichier .json que « Importer » recharge, sur ce poste ou un autre.
 
 Pendant le dépannage :
 

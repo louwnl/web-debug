@@ -143,7 +143,11 @@
     return `<div class="commande">
       <h3>${echapper(c.titre)}</h3>
       ${corps}
-      <details class="lecture"><summary>Comment lire le résultat</summary><p>${echapper(c.lecture)}</p></details>
+      ${c.lecture ? `<details class="lecture"><summary>${c.perso ? "Mon astuce" : "Comment lire le résultat"}</summary><p>${echapper(c.lecture)}</p></details>` : ""}
+      ${c.perso ? `<div class="actions-perso">
+        <button type="button" class="secondaire" data-perso-modifier="${id}">Modifier</button>
+        <button type="button" class="secondaire danger" data-perso-supprimer="${id}">Supprimer</button>
+      </div>` : ""}
     </div>`;
   }
 
@@ -562,6 +566,9 @@
       afficherHistorique();
     }
   });
+
+  // Pour js/perso.js, après un ajout, une modification ou un import.
+  window.WEBDEBUG.rafraichir = () => { afficherEtape(); afficherCatalogue(); };
 
   afficherEtape();
   afficherCatalogue();
