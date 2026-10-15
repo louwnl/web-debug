@@ -2,6 +2,21 @@
 
 Aide au diagnostic réseau : une app web qui guide pas à pas le dépannage d'une machine Windows, macOS ou Linux, avec un catalogue de commandes. L'app ne touche jamais au système dépanné : elle te dit quoi taper, comment lire le résultat, et quelle est l'étape suivante.
 
+## Utilisation
+
+Ouvre `index.html` dans un navigateur, directement depuis le disque : aucun serveur ni installation n'est nécessaire. Choisis en haut le système de la machine que tu dépannes, puis :
+
+- **Diagnostic guidé** : réponds aux questions, l'app affiche à chaque étape la commande à taper et comment lire le résultat, jusqu'à un diagnostic avec les actions à faire. Le fil en haut permet de revenir à une étape précédente.
+- **Catalogue** : toutes les commandes, classées par catégorie, avec une recherche.
+
+Pendant le dépannage :
+
+- **Valeurs à remplacer** : saisis une fois la cible, la passerelle, l'interface ou le port, et toutes les commandes (guidé et catalogue) les utilisent, y compris quand tu cliques sur Copier.
+- **Observations** : chaque étape a un champ pour noter ce que tu as vu (une IP, un message d'erreur).
+- **Notes et compte rendu** : des notes libres, puis un compte rendu en texte (étapes, réponses, observations, diagnostic, actions, notes) à copier ou télécharger pour un ticket.
+
+Le choix du système et la session en cours sont gardés dans le navigateur, même après un rechargement, jusqu'à « Nouvelle session ».
+
 ## Contenu
 
 - `data/commandes.js` : le catalogue de commandes. Chaque commande a une variante par OS (`windows`, `macos`, `linux`) et une aide à la lecture du résultat. Les valeurs à remplacer sont entre chevrons (`<cible>`, `<passerelle>`, `<interface>`…).
