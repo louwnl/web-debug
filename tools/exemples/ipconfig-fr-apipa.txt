@@ -1,0 +1,27 @@
+
+Configuration IP de Windows
+
+   Nom de l'hôte . . . . . . . . . . : PC-COMPTA
+   Suffixe DNS principal . . . . . . :
+   Type de noeud. . . . . . . . . .  : Hybride
+   Routage IP activé . . . . . . . . : Non
+
+Carte Ethernet Ethernet :
+
+   Suffixe DNS propre à la connexion. . . :
+   Description. . . . . . . . . . . . . . : Intel(R) Ethernet Connection I219-V
+   Adresse physique . . . . . . . . . . . : 3C-52-82-11-22-33
+   DHCP activé. . . . . . . . . . . . . . : Oui
+   Configuration automatique activée. . . : Oui
+   Adresse IPv6 de liaison locale. . . . .: fe80::1d2c:aa1:3b4c:9f10%12(préféré)
+   Adresse d'autoconfiguration IPv4 . . . : 169.254.23.117(préféré)
+   Masque de sous-réseau. . . . . . . . . : 255.255.0.0
+   Passerelle par défaut. . . . . . . . . :
+   Serveurs DNS. . .  . . . . . . . . . . : fec0:0:0:ffff::1%1
+                                       fec0:0:0:ffff::2%1
+   NetBIOS sur Tcpip. . . . . . . . . . . : Activé
+
+Carte réseau sans fil Wi-Fi :
+
+   Statut du média. . . . . . . . . . . . : Média déconnecté
+   Suffixe DNS propre à la connexion. . . :

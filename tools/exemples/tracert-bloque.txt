@@ -1,0 +1,7 @@
+
+Détermination de l'itinéraire vers 1.1.1.1 avec un maximum de 30 sauts.
+
+  1    <1 ms    <1 ms    <1 ms  192.168.1.1
+  2     *        *        *     Délai d'attente de la demande dépassé.
+  3     *        *        *     Délai d'attente de la demande dépassé.
+  4     *        *        *     Délai d'attente de la demande dépassé.

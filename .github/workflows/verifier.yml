@@ -14,3 +14,4 @@ jobs:
         with:
           node-version: 22
       - run: node tools/verifier-donnees.js
+      - run: node tools/tester-analyse.js

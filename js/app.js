@@ -17,6 +17,7 @@
     "serveur-iperf": "Serveur iperf3",
     pid: "PID",
     valeur: "Valeur MTU",
+    "serveur-dns": "Serveur DNS",
   };
   const MOTIF_VALEUR = /<([a-z0-9-]+)>/gi;
 
@@ -35,6 +36,8 @@
       chemin: [],
       courante: parcours.depart,
       observations: {},
+      // Résultats de commande collés, par étape, pour l'analyse automatique.
+      collages: {},
       notes: "",
       valeurs: {},
     };
@@ -195,6 +198,11 @@
       <h2>${echapper(etape.titre)}</h2>
       ${etape.aide ? `<p class="aide">${echapper(etape.aide)}</p>` : ""}
       ${(etape.commandes || []).map(blocCommande).join("")}
+      ${etape.commandes ? `<details class="analyse"${etat.session.collages[id] ? " open" : ""}>
+        <summary>Coller le résultat pour l'analyser</summary>
+        <textarea data-collage="${id}" rows="5" spellcheck="false" placeholder="Colle ici la sortie de la commande : l'app relève les valeurs utiles et suggère la réponse.">${echapper(etat.session.collages[id] || "")}</textarea>
+        <div class="resultat-analyse" aria-live="polite"></div>
+      </details>` : ""}
       <label class="observation">
         <span>Ce que j'observe (facultatif, repris dans le compte rendu)</span>
         <textarea data-observation="${id}" rows="2" placeholder="Ex. IP 169.254.12.4, pas de passerelle">${echapper(observations[id] || "")}</textarea>
@@ -205,6 +213,59 @@
       </div>
       ${navigation}
     </article>`;
+    if (etat.session.collages[id]) analyserCollage(id, { remplirValeurs: false });
+  }
+
+  // --- Analyse d'un résultat collé ------------------------------------------------
+  const ICONES_CONSTAT = { ok: "✓", alerte: "⚠", info: "ℹ" };
+
+  function analyserCollage(id, { remplirValeurs = true } = {}) {
+    const zone = el.etape.querySelector(".resultat-analyse");
+    if (!zone) return;
+    const r = WEBDEBUG.analyser(etat.session.collages[id] || "");
+    const indices = new Set(r.constats.map((c) => c.indice).filter(Boolean));
+
+    // Valeurs reprises : seulement celles qui sont encore vides, pour ne rien écraser.
+    const reprises = [];
+    if (remplirValeurs) {
+      for (const [nom, valeur] of Object.entries(r.valeurs)) {
+        // Un ping vers la passerelle ne doit pas faire de la passerelle la « cible ».
+        if (nom === "cible" && valeur === etat.session.valeurs.passerelle) continue;
+        if (!etat.session.valeurs[nom]) {
+          etat.session.valeurs[nom] = valeur;
+          reprises.push(`${LIBELLES_VALEURS[nom] || nom} = ${valeur}`);
+        }
+      }
+      if (reprises.length) {
+        sauver();
+        const etape = parcours.etapes[id];
+        afficherValeurs(el.valeursGuide, valeursDe((etape.commandes || []).flatMap(textesDeCommande)));
+        rafraichirCommandes();
+      }
+    }
+
+    // Réponses suggérées d'après les constats.
+    el.etape.querySelectorAll("[data-reponse]").forEach((b) => {
+      const reponse = parcours.etapes[id].reponses[Number(b.dataset.reponse)];
+      b.classList.toggle("suggeree", (reponse.indices || []).some((i) => indices.has(i)));
+    });
+
+    if (!r.constats.length && !r.infos.length) {
+      zone.innerHTML = (etat.session.collages[id] || "").trim()
+        ? '<p class="note">Rien de reconnu dans ce texte. Vérifie que c\'est bien la sortie complète de la commande.</p>'
+        : "";
+      return;
+    }
+    zone.innerHTML = `
+      ${r.constats.length ? `<ul class="constats">${r.constats.map((c) => `<li class="${c.niveau}"><span aria-hidden="true">${ICONES_CONSTAT[c.niveau]}</span> ${echapper(c.texte)}</li>`).join("")}</ul>` : ""}
+      ${r.infos.length ? `<dl class="infos">${r.infos.map((i) => `<dt>${echapper(i.libelle)}</dt><dd>${echapper(i.valeur)}</dd>`).join("")}</dl>` : ""}
+      ${reprises.length ? `<p class="note">Valeurs reprises dans les commandes : ${echapper(reprises.join(", "))}.</p>` : ""}
+      ${indices.size && el.etape.querySelector(".suggeree") ? '<p class="note">La réponse suggérée est mise en évidence ci-dessous.</p>' : ""}
+      <button type="button" class="secondaire" data-action="constats-vers-observation">Ajouter ces constats à mes observations</button>`;
+  }
+
+  function constatsEnTexte(id) {
+    return WEBDEBUG.analyser(etat.session.collages[id] || "").constats.map((c) => c.texte).join(" ");
   }
 
   function repondre(index) {
@@ -244,6 +305,8 @@
       const e = parcours.etapes[p.id];
       lignes.push(`${i + 1}. [${couches[e.couche]}] ${e.titre}`);
       if (s.observations[p.id]) lignes.push(`   Observé : ${s.observations[p.id].trim().replace(/\n/g, "\n             ")}`);
+      const analyse = s.collages && s.collages[p.id] ? constatsEnTexte(p.id) : "";
+      if (analyse && !(s.observations[p.id] || "").includes(analyse)) lignes.push(`   Analyse : ${analyse}`);
       lignes.push(p.reponse ? `   Réponse : ${p.reponse}` : "   (étape en cours, pas encore de réponse)");
     });
 
@@ -352,6 +415,10 @@
     const t = ev.target;
     if (t === el.notes) {
       etat.session.notes = t.value;
+    } else if (t.dataset.collage) {
+      etat.session.collages[t.dataset.collage] = t.value;
+      clearTimeout(analyserCollage.minuteur);
+      analyserCollage.minuteur = setTimeout(() => analyserCollage(t.dataset.collage), 250);
     } else if (t.dataset.observation) {
       etat.session.observations[t.dataset.observation] = t.value;
     } else if (t.dataset.valeur) {
@@ -372,6 +439,17 @@
     else if (b.dataset.retour !== undefined) revenirA(Number(b.dataset.retour));
     else if (b.dataset.action === "precedent") revenirA(etat.session.chemin.length - 1);
     else if (b.dataset.action === "recommencer") revenirA(0);
+    else if (b.dataset.action === "constats-vers-observation") {
+      const id = etat.session.courante;
+      const zone = el.etape.querySelector(`[data-observation="${id}"]`);
+      const ajout = constatsEnTexte(id);
+      if (zone && ajout) {
+        zone.value = zone.value.trim() ? `${zone.value.trim()}\n${ajout}` : ajout;
+        etat.session.observations[id] = zone.value;
+        sauver();
+        confirmer(b, "Ajouté ✓");
+      }
+    }
     else if (b.dataset.action === "exporter") copierTexte(compteRendu()).then(() => confirmer(b, "Compte rendu copié ✓"));
     else if (b.dataset.action === "telecharger") telecharger();
     else if (b.dataset.action === "nouvelle-session") {
