@@ -268,3 +268,13 @@ details.analyse textarea { margin-top: 8px; font: 13px/1.4 ui-monospace, "Cascad
 .champs-perso textarea { font-family: ui-monospace, "Cascadia Code", Consolas, monospace; }
 #form-perso .actions-nav, .actions-perso { flex-wrap: wrap; }
 .actions-perso { display: flex; gap: 8px; margin-top: 8px; }
+/* Historique */
+.historique summary { cursor: pointer; font-weight: 600; }
+.liste-historique { list-style: none; padding: 0; margin: 8px 0 0; }
+.entree-historique { border-top: 1px solid var(--bord); padding: 10px 0; }
+.entree-historique p { margin: 4px 0; }
+.entree-historique .actions-nav { margin-top: 8px; flex-wrap: wrap; }
+.entete-historique { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; }
+.badge { font-size: .8rem; border: 1px solid var(--bord); border-radius: 999px; padding: 1px 8px; color: var(--discret); overflow-wrap: anywhere; }
+.discret { color: var(--discret); font-size: .85rem; }
+.session .actions-nav { flex-wrap: wrap; }

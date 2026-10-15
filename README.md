@@ -18,6 +18,7 @@ Pendant le dépannage :
 - **Analyse d'un résultat collé** : colle la sortie d'une commande (ipconfig, ip, ifconfig, ping, nslookup, Test-NetConnection, curl, traceroute, netsh wlan…) sous l'étape : l'app relève l'IP, la passerelle, les DNS, les pertes, les erreurs, reporte les valeurs dans les commandes et met en évidence la réponse probable.
 - **Observations** : chaque étape a un champ pour noter ce que tu as vu (une IP, un message d'erreur).
 - **Notes et compte rendu** : des notes libres, puis un compte rendu en texte (étapes, réponses, observations, diagnostic, actions, notes) à copier ou télécharger pour un ticket.
+- **Dépannages précédents** : « Nouvelle session » range la session en cours dans l'historique (date, système, cible, diagnostic atteint, première ligne des notes) au lieu de l'effacer. Chaque dépannage peut être rouvert là où il s'était arrêté, ou son compte rendu copié ou téléchargé.
 
 Le choix du système et la session en cours sont gardés dans le navigateur, même après un rechargement, jusqu'à « Nouvelle session ».
 

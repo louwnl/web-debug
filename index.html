@@ -44,9 +44,14 @@
         <div class="actions-nav">
           <button type="button" class="principal" data-action="exporter">Copier le compte rendu</button>
           <button type="button" class="secondaire" data-action="telecharger">Télécharger (.txt)</button>
-          <button type="button" class="secondaire danger" data-action="nouvelle-session">Nouvelle session</button>
+          <button type="button" class="secondaire" data-action="nouvelle-session">Nouvelle session</button>
         </div>
-        <p class="note">La session (étapes, observations, notes, valeurs) est gardée dans ce navigateur jusqu'à « Nouvelle session ».</p>
+        <p class="note">La session (étapes, observations, notes, valeurs) est gardée dans ce navigateur. « Nouvelle session » la range dans les dépannages précédents, d'où elle peut être rouverte.</p>
+      </details>
+
+      <details id="historique" class="carte historique">
+        <summary>Dépannages précédents</summary>
+        <ul id="liste-historique" class="liste-historique"></ul>
       </details>
     </section>
 
