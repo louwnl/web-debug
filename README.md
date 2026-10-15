@@ -25,7 +25,7 @@ Le choix du système et la session en cours sont gardés dans le navigateur, mê
 - `data/commandes.js` : le catalogue de commandes. Chaque commande a une variante par OS (`windows`, `macos`, `linux`) et une aide à la lecture du résultat. Les valeurs à remplacer sont entre chevrons (`<cible>`, `<passerelle>`, `<interface>`…).
 - `data/parcours.js` : l'arbre de diagnostic. On part de l'étape `depart` ; chaque étape pose une question, propose des commandes, et chaque réponse mène à une autre étape ou à une conclusion (identifiants en `fin-…`).
 
-Le parcours remonte les couches du réseau, du plus simple au plus compliqué : symptôme, lien physique, adressage IP et DHCP, passerelle, accès Internet, DNS, puis services, certificats, proxy, performances, MTU et Wi-Fi.
+Le parcours remonte les couches du réseau, du plus simple au plus compliqué : symptôme, lien physique, adressage IP et DHCP, passerelle, accès Internet, DNS, puis services, certificats, proxy, performances, MTU et Wi-Fi. Des parcours dédiés couvrent aussi le VPN, les partages de fichiers (SMB), les imprimantes réseau, IPv6, les portails captifs des Wi-Fi publics et le Wake-on-LAN.
 
 Les fichiers de données sont de simples scripts (pas de JSON ni de modules) pour que l'app fonctionne aussi en ouvrant `index.html` directement depuis le disque, sans serveur.
 

@@ -8,6 +8,7 @@
 
   // Libellés des valeurs à remplacer dans les commandes (<cible>, <passerelle>…).
   const LIBELLES_VALEURS = {
+    ...WEBDEBUG.libellesValeurs,
     cible: "Cible (nom ou IP)",
     passerelle: "Passerelle",
     interface: "Interface (ex. Ethernet, en0, eth0)",
