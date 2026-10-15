@@ -242,3 +242,18 @@ details.analyse textarea { margin-top: 8px; font: 13px/1.4 ui-monospace, "Cascad
 .infos dd { margin: 0; font-family: ui-monospace, "Cascadia Code", Consolas, monospace; word-break: break-all; }
 .reponses button.suggeree { border: 2px solid var(--conclusion-bord); background: var(--conclusion); }
 .reponses button.suggeree::after { content: "  · suggéré"; color: var(--discret); font-size: .8rem; }
+/* Onglet Outils */
+.outil h2 { margin-top: 0; }
+.champs-outil { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(240px, 100%), 1fr)); gap: 8px 12px; margin-bottom: 8px; }
+.champs-outil label { display: flex; flex-direction: column; gap: 4px; font-size: .85rem; color: var(--discret); }
+.champs-outil input, #outil-port { font-family: ui-monospace, "Cascadia Code", Consolas, monospace; width: 100%; }
+#outil-port { margin-bottom: 8px; }
+.verdict-ok { border-left: 4px solid #10b981; padding-left: 8px; }
+.verdict-alerte { border-left: 4px solid #d97706; padding-left: 8px; }
+.tableau { width: 100%; table-layout: fixed; overflow-wrap: anywhere; border-collapse: collapse; font-size: .88rem; margin-top: 8px; }
+.tableau th, .tableau td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--bord); vertical-align: top; }
+.tableau th { color: var(--discret); font-weight: 600; }
+.tableau-ports th:nth-child(1), .tableau-ports th:nth-child(2) { width: 5.5rem; }
+@media (max-width: 600px) {
+  .tableau td:nth-child(4), .tableau th:nth-child(4) { display: none; }
+}

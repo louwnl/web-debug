@@ -27,6 +27,7 @@ jobs:
           node-version: 22
       - run: node tools/verifier-donnees.js
       - run: node tools/tester-analyse.js
+      - run: node tools/tester-outils.js
       - name: Préparer le site
         run: |
           mkdir _site
