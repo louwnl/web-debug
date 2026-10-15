@@ -227,6 +227,21 @@ textarea { resize: vertical; }
 .danger { color: #dc2626; }
 @media (prefers-color-scheme: dark) { .danger { color: #f87171; } }
 
+/* Analyse d'un résultat collé */
+details.analyse { margin-top: 12px; border: 1px dashed var(--bord); border-radius: 8px; padding: 8px 12px; }
+details.analyse summary { cursor: pointer; color: var(--accent); font-size: .9rem; }
+details.analyse textarea { margin-top: 8px; font: 13px/1.4 ui-monospace, "Cascadia Code", Consolas, monospace; }
+.constats { list-style: none; padding: 0; margin: 10px 0 6px; }
+.constats li { margin: 4px 0; }
+.constats li span { display: inline-block; width: 1.2em; font-weight: 700; }
+.constats .ok span { color: #059669; }
+.constats .alerte span { color: #d97706; }
+.constats .info span { color: var(--accent); }
+.infos { display: grid; grid-template-columns: max-content 1fr; gap: 2px 12px; margin: 6px 0; font-size: .9rem; }
+.infos dt { color: var(--discret); }
+.infos dd { margin: 0; font-family: ui-monospace, "Cascadia Code", Consolas, monospace; word-break: break-all; }
+.reponses button.suggeree { border: 2px solid var(--conclusion-bord); background: var(--conclusion); }
+.reponses button.suggeree::after { content: "  · suggéré"; color: var(--discret); font-size: .8rem; }
 /* Mes commandes */
 .perso summary { cursor: pointer; font-weight: 600; }
 #form-perso h3 { margin: 12px 0 8px; }
