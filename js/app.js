@@ -394,4 +394,9 @@
 
   afficherEtape();
   afficherCatalogue();
+
+  // Mode hors ligne : seulement quand l'app est servie en http(s), pas ouverte depuis le disque.
+  if ("serviceWorker" in navigator && location.protocol.startsWith("http")) {
+    navigator.serviceWorker.register("sw.js").catch(() => { /* l'app marche aussi sans */ });
+  }
 })();

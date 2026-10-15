@@ -4,7 +4,9 @@ Aide au diagnostic réseau : une app web qui guide pas à pas le dépannage d'un
 
 ## Utilisation
 
-Ouvre `index.html` dans un navigateur, directement depuis le disque : aucun serveur ni installation n'est nécessaire. Choisis en haut le système de la machine que tu dépannes, puis :
+L'app est publiée sur https://louwnl.github.io/web-debug/ à chaque mise à jour de `main`. Après une première visite, elle marche hors ligne, et Edge ou Chrome proposent de l'installer comme une application (icône d'installation dans la barre d'adresse).
+
+On peut aussi ouvrir `index.html` directement depuis le disque, sans serveur ni installation (le mode hors ligne n'est alors pas nécessaire). Choisis en haut le système de la machine que tu dépannes, puis :
 
 - **Diagnostic guidé** : réponds aux questions, l'app affiche à chaque étape la commande à taper et comment lire le résultat, jusqu'à un diagnostic avec les actions à faire. Le fil en haut permet de revenir à une étape précédente.
 - **Catalogue** : toutes les commandes, classées par catégorie, avec une recherche.
@@ -37,3 +39,9 @@ node tools/verifier-donnees.js
 ```
 
 Le script signale les références cassées, les variantes manquantes, les étapes inatteignables et les boucles. Il tourne aussi automatiquement sur chaque pull request.
+
+## Publication
+
+Le workflow `.github/workflows/publier.yml` vérifie les données puis publie le site sur GitHub Pages à chaque push sur `main`. Il faut avoir réglé une fois *Settings → Pages → Source* sur **GitHub Actions**.
+
+Le mode hors ligne est géré par `sw.js` : l'app s'ouvre depuis le cache et récupère la nouvelle version en arrière-plan, visible au chargement suivant. Si un fichier est ajouté à l'app, l'ajouter aussi à la liste `FICHIERS` de `sw.js`.
