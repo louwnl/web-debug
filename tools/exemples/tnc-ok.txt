@@ -1,0 +1,7 @@
+
+ComputerName     : intranet.exemple.fr
+RemoteAddress    : 10.0.0.12
+RemotePort       : 443
+InterfaceAlias   : Ethernet
+SourceAddress    : 192.168.1.42
+TcpTestSucceeded : True

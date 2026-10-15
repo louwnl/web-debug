@@ -1,0 +1,4 @@
+Serveur :   box.home
+Address:  192.168.1.1
+
+*** box.home ne parvient pas à trouver intranet.exemple : Non-existent domain

@@ -1,0 +1,11 @@
+
+Il existe 1 interface sur le système :
+
+    Nom                    : Wi-Fi
+    Description            : Intel(R) Wi-Fi 6 AX201 160MHz
+    État                   : connecté
+    SSID                   : Livebox-1234
+    Type de radio          : 802.11ac
+    Canal                  : 6
+    Vitesse de réception (Mbits/s)  : 58.5
+    Signal                 : 32%

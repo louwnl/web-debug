@@ -3,13 +3,14 @@
 // instantanément depuis le cache et la version suivante est récupérée en
 // tâche de fond quand le réseau est là. Changer VERSION force un nouveau cache.
 
-const VERSION = "v1";
+const VERSION = "v2";
 const CACHE = `webdebug-${VERSION}`;
 const FICHIERS = [
   "./",
   "index.html",
   "css/style.css",
   "js/app.js",
+  "js/analyse.js",
   "data/commandes.js",
   "data/parcours.js",
   "manifest.webmanifest",

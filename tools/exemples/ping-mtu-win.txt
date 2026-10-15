@@ -1,0 +1,6 @@
+Envoi d'une requête 'Ping'  1.1.1.1 avec 1472 octets de données :
+Le paquet doit être fragmenté mais l'indicateur DF est activé.
+Le paquet doit être fragmenté mais l'indicateur DF est activé.
+
+Statistiques Ping pour 1.1.1.1:
+    Paquets : envoyés = 2, reçus = 0, perdus = 2 (perte 100%),
