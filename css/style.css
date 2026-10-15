@@ -257,3 +257,14 @@ details.analyse textarea { margin-top: 8px; font: 13px/1.4 ui-monospace, "Cascad
 @media (max-width: 600px) {
   .tableau td:nth-child(4), .tableau th:nth-child(4) { display: none; }
 }
+/* Mes commandes */
+.perso summary { cursor: pointer; font-weight: 600; }
+#form-perso h3 { margin: 12px 0 8px; }
+#form-perso label { display: flex; flex-direction: column; gap: 4px; font-size: .85rem; color: var(--discret); margin: 8px 0; }
+#form-perso input, #form-perso textarea { width: 100%; }
+.champs-perso { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr)); gap: 8px; }
+.champs-perso fieldset { border: 1px solid var(--bord); border-radius: 8px; margin: 0; padding: 6px 8px 8px; display: grid; gap: 6px; min-width: 0; }
+.champs-perso legend { font-size: .85rem; color: var(--discret); padding: 0 4px; }
+.champs-perso textarea { font-family: ui-monospace, "Cascadia Code", Consolas, monospace; }
+#form-perso .actions-nav, .actions-perso { flex-wrap: wrap; }
+.actions-perso { display: flex; gap: 8px; margin-top: 8px; }

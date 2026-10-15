@@ -11,6 +11,7 @@ const FICHIERS = [
   "css/style.css",
   "js/app.js",
   "js/analyse.js",
+  "js/perso.js",
   "data/commandes.js",
   "data/parcours.js",
   "manifest.webmanifest",
