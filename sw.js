@@ -21,6 +21,8 @@ const FICHIERS = [
   "js/outils.js",
   "data/ports.js",
   "data/oui.js",
+  "data/equipements.js",
+  "js/equipements.js",
 ];
 
 self.addEventListener("install", (ev) => {

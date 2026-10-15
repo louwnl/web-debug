@@ -11,7 +11,7 @@ const racine = path.join(__dirname, "..");
 const contexte = {};
 contexte.window = contexte; // comme dans un navigateur, window est l'objet global
 vm.createContext(contexte);
-for (const fichier of ["data/commandes.js", "data/parcours.js", "js/analyse.js"]) {
+for (const fichier of ["data/commandes.js", "data/parcours.js", "js/analyse.js", "data/equipements.js"]) {
   vm.runInContext(fs.readFileSync(path.join(racine, fichier), "utf8"), contexte, { filename: fichier });
 }
 const { commandes, categories, parcours, couches, indices } = contexte.window.WEBDEBUG;
@@ -75,6 +75,23 @@ for (const id of [...Object.keys(etapes), ...Object.keys(conclusions)]) {
   if (!atteints.has(id)) erreurs.push(`« ${id} » n'est atteignable depuis aucun chemin`);
 }
 
+// Commandes par équipement.
+const { equipements, libellesEquipements } = contexte.window.WEBDEBUG;
+let nbEquipement = 0;
+for (const [id, eq] of Object.entries(equipements)) {
+  if (!eq.nom || !eq.intro || !eq.groupes?.length) erreurs.push(`équipement ${id} : nom, intro ou groupes manquants`);
+  for (const g of eq.groupes || []) {
+    if (!g.titre || !g.commandes?.length) erreurs.push(`équipement ${id} : groupe sans titre ou sans commande`);
+    for (const c of g.commandes || []) {
+      nbEquipement++;
+      if (!c.titre || !c.cmd) erreurs.push(`équipement ${id} / ${g.titre} : commande sans titre ou sans cmd`);
+      for (const m of (c.cmd || "").matchAll(/<([a-z0-9-]+)>/gi)) {
+        if (!libellesEquipements[m[1]]) erreurs.push(`équipement ${id} : valeur <${m[1]}> sans libellé dans libellesEquipements`);
+      }
+    }
+  }
+}
+
 const utilisees = new Set(Object.values(etapes).flatMap((e) => e.commandes || []));
 const horsParcours = Object.keys(commandes).filter((id) => !utilisees.has(id));
 
@@ -86,5 +103,6 @@ if (erreurs.length) {
 console.log(
   `OK : ${Object.keys(etapes).length} étapes, ${Object.keys(conclusions).length} conclusions, ` +
     `${Object.keys(commandes).length} commandes (${horsParcours.length} seulement dans le catalogue` +
-    `${horsParcours.length ? " : " + horsParcours.join(", ") : ""}).`
+    `${horsParcours.length ? " : " + horsParcours.join(", ") : ""}), ` +
+    `${nbEquipement} commandes pour ${Object.keys(equipements).length} équipements.`
 );
