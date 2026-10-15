@@ -53,6 +53,25 @@
   };
   const sauver = () => ecrire("webdebug-session", etat.session);
 
+  // Historique : les sessions passées, la plus récente en premier, chacune avec son OS.
+  const MAX_HISTORIQUE = 100;
+  const historiqueEnregistre = lire("webdebug-historique");
+  etat.historique = Array.isArray(historiqueEnregistre) ? historiqueEnregistre.filter((s) => s && s.debut && Array.isArray(s.chemin)) : [];
+  const sauverHistorique = () => ecrire("webdebug-historique", etat.historique);
+
+  function sessionVide(s) {
+    return !s.chemin.length && !s.notes.trim() && !Object.values(s.observations).some((v) => v && v.trim());
+  }
+
+  // Range la session en cours dans l'historique (si elle contient quelque chose).
+  function archiver() {
+    if (sessionVide(etat.session)) return false;
+    etat.historique.unshift({ ...etat.session, os: etat.os, fin: new Date().toISOString() });
+    etat.historique.length = Math.min(etat.historique.length, MAX_HISTORIQUE);
+    sauverHistorique();
+    return true;
+  }
+
   const el = {
     os: document.getElementById("os"),
     ongletGuide: document.getElementById("onglet-guide"),
@@ -62,6 +81,8 @@
     fil: document.getElementById("fil"),
     etape: document.getElementById("etape"),
     notes: document.getElementById("notes"),
+    historique: document.getElementById("historique"),
+    listeHistorique: document.getElementById("liste-historique"),
     valeursGuide: document.getElementById("valeurs-guide"),
     valeursCatalogue: document.getElementById("valeurs-catalogue"),
     recherche: document.getElementById("recherche"),
@@ -226,13 +247,12 @@
   }
 
   // --- Compte rendu -----------------------------------------------------------
-  function compteRendu() {
-    const s = etat.session;
+  function compteRendu(s = etat.session, os = etat.os) {
     const date = (iso) => new Date(iso).toLocaleString("fr-FR", { dateStyle: "short", timeStyle: "short" });
     const lignes = [
       "COMPTE RENDU DE DIAGNOSTIC RÉSEAU",
-      `Début : ${date(s.debut)}    Fin : ${date(new Date().toISOString())}`,
-      `Système dépanné : ${NOMS_OS[etat.os]}`,
+      `Début : ${date(s.debut)}    Fin : ${date(s.fin || new Date().toISOString())}`,
+      `Système dépanné : ${NOMS_OS[os]}`,
     ];
     const valeurs = Object.entries(s.valeurs).filter(([, v]) => v);
     if (valeurs.length) lignes.push(`Valeurs : ${valeurs.map(([n, v]) => `${n} = ${v}`).join(", ")}`);
@@ -280,17 +300,75 @@
     setTimeout(() => { bouton.textContent = avant; }, 1500);
   }
 
-  function telecharger() {
-    const d = new Date();
+  function telecharger(texte = compteRendu(), d = new Date()) {
     const deux = (n) => String(n).padStart(2, "0");
     const horodatage = `${d.getFullYear()}-${deux(d.getMonth() + 1)}-${deux(d.getDate())}-${deux(d.getHours())}h${deux(d.getMinutes())}`;
     const lien = document.createElement("a");
-    lien.href = URL.createObjectURL(new Blob([compteRendu()], { type: "text/plain;charset=utf-8" }));
+    lien.href = URL.createObjectURL(new Blob([texte], { type: "text/plain;charset=utf-8" }));
     lien.download = `diagnostic-reseau-${horodatage}.txt`;
     document.body.appendChild(lien);
     lien.click();
     lien.remove();
     setTimeout(() => URL.revokeObjectURL(lien.href), 1000);
+  }
+
+  // --- Historique -------------------------------------------------------------
+  function resume(s) {
+    const fin = parcours.conclusions[s.courante];
+    if (fin) return fin.titre;
+    const e = parcours.etapes[s.courante];
+    return e ? `Arrêté à : ${e.titre}` : "";
+  }
+
+  function afficherHistorique() {
+    const liste = etat.historique;
+    el.historique.querySelector("summary").textContent = `Dépannages précédents (${liste.length})`;
+    if (!liste.length) {
+      el.listeHistorique.innerHTML = '<li class="note">Aucun pour l\'instant. « Nouvelle session » range ici la session en cours.</li>';
+      return;
+    }
+    const date = (iso) => new Date(iso).toLocaleString("fr-FR", { dateStyle: "short", timeStyle: "short" });
+    el.listeHistorique.innerHTML = liste.map((s, i) => {
+      const valide = sessionValide(s);
+      const titreNotes = s.notes && s.notes.trim().split("\n")[0].slice(0, 120);
+      const cible = s.valeurs && s.valeurs.cible;
+      return `<li class="entree-historique">
+        <div class="entete-historique">
+          <strong>${echapper(date(s.debut))}</strong>
+          <span class="badge">${echapper(NOMS_OS[s.os] || "?")}</span>
+          ${cible ? `<span class="badge">${echapper(cible)}</span>` : ""}
+          <span class="discret">${s.chemin.length} étape${s.chemin.length > 1 ? "s" : ""}</span>
+        </div>
+        <p>${valide ? echapper(resume(s)) : "Le parcours a changé depuis : cette session ne peut plus être rouverte."}</p>
+        ${titreNotes ? `<p class="note">${echapper(titreNotes)}</p>` : ""}
+        <div class="actions-nav">
+          ${valide ? `<button type="button" class="secondaire" data-historique-rouvrir="${i}">Rouvrir</button>
+          <button type="button" class="secondaire" data-historique-copier="${i}">Copier le compte rendu</button>
+          <button type="button" class="secondaire" data-historique-telecharger="${i}">Télécharger (.txt)</button>` : ""}
+          <button type="button" class="secondaire danger" data-historique-supprimer="${i}">Supprimer</button>
+        </div>
+      </li>`;
+    }).join("");
+  }
+
+  function rouvrir(index) {
+    const ancienne = etat.historique[index];
+    if (!ancienne || !sessionValide(ancienne)) return;
+    etat.historique.splice(index, 1);
+    archiver(); // la session en cours n'est pas perdue
+    const { os, fin, ...session } = ancienne;
+    etat.session = { ...nouvelleSession(), ...session };
+    if (os in NOMS_OS) {
+      etat.os = os;
+      el.os.value = os;
+      ecrire("webdebug-os", os);
+    }
+    sauver();
+    sauverHistorique();
+    el.notes.value = etat.session.notes;
+    afficherHistorique();
+    ouvrirOnglet("guide");
+    el.etape.scrollIntoView({ block: "start", behavior: "smooth" });
   }
 
   // --- Catalogue --------------------------------------------------------------
@@ -375,25 +453,39 @@
     else if (b.dataset.action === "exporter") copierTexte(compteRendu()).then(() => confirmer(b, "Compte rendu copié ✓"));
     else if (b.dataset.action === "telecharger") telecharger();
     else if (b.dataset.action === "nouvelle-session") {
-      // Pas de boîte de confirmation : un deuxième clic est demandé.
-      if (b.dataset.confirme !== "1") {
-        b.dataset.confirme = "1";
-        b.textContent = "Cliquer encore pour tout effacer";
-        setTimeout(() => { b.dataset.confirme = ""; b.textContent = "Nouvelle session"; }, 3000);
-        return;
-      }
+      // Rien n'est perdu : la session en cours part dans l'historique.
+      const rangee = archiver();
       etat.session = nouvelleSession();
       sauver();
       el.notes.value = "";
-      b.dataset.confirme = "";
-      b.textContent = "Nouvelle session";
       afficherEtape();
       afficherCatalogue();
+      afficherHistorique();
+      confirmer(b, rangee ? "Rangée dans l'historique ✓" : "Nouvelle session ✓");
+    } else if (b.dataset.historiqueRouvrir !== undefined) rouvrir(Number(b.dataset.historiqueRouvrir));
+    else if (b.dataset.historiqueCopier !== undefined) {
+      const s = etat.historique[Number(b.dataset.historiqueCopier)];
+      copierTexte(compteRendu(s, s.os)).then(() => confirmer(b, "Copié ✓"));
+    } else if (b.dataset.historiqueTelecharger !== undefined) {
+      const s = etat.historique[Number(b.dataset.historiqueTelecharger)];
+      telecharger(compteRendu(s, s.os), new Date(s.debut));
+    } else if (b.dataset.historiqueSupprimer !== undefined) {
+      // Pas de boîte de confirmation : un deuxième clic est demandé.
+      if (b.dataset.confirme !== "1") {
+        b.dataset.confirme = "1";
+        b.textContent = "Cliquer encore pour supprimer";
+        setTimeout(() => { b.dataset.confirme = ""; b.textContent = "Supprimer"; }, 3000);
+        return;
+      }
+      etat.historique.splice(Number(b.dataset.historiqueSupprimer), 1);
+      sauverHistorique();
+      afficherHistorique();
     }
   });
 
   afficherEtape();
   afficherCatalogue();
+  afficherHistorique();
 
   // Mode hors ligne : seulement quand l'app est servie en http(s), pas ouverte depuis le disque.
   if ("serviceWorker" in navigator && location.protocol.startsWith("http")) {

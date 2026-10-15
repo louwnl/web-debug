@@ -226,3 +226,14 @@ textarea { resize: vertical; }
 }
 .danger { color: #dc2626; }
 @media (prefers-color-scheme: dark) { .danger { color: #f87171; } }
+
+/* Historique */
+.historique summary { cursor: pointer; font-weight: 600; }
+.liste-historique { list-style: none; padding: 0; margin: 8px 0 0; }
+.entree-historique { border-top: 1px solid var(--bord); padding: 10px 0; }
+.entree-historique p { margin: 4px 0; }
+.entree-historique .actions-nav { margin-top: 8px; flex-wrap: wrap; }
+.entete-historique { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; }
+.badge { font-size: .8rem; border: 1px solid var(--bord); border-radius: 999px; padding: 1px 8px; color: var(--discret); overflow-wrap: anywhere; }
+.discret { color: var(--discret); font-size: .85rem; }
+.session .actions-nav { flex-wrap: wrap; }
