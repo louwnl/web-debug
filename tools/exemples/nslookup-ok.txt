@@ -1,0 +1,7 @@
+Serveur :   box.home
+Address:  192.168.1.1
+
+Réponse ne faisant pas autorité :
+Nom :    www.google.com
+Addresses:  2a00:1450:4007:80c::2004
+          142.250.75.228

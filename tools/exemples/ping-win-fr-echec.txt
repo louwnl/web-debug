@@ -1,0 +1,9 @@
+
+Envoi d'une requête 'Ping'  192.168.1.1 avec 32 octets de données :
+Délai d'attente de la demande dépassé.
+Délai d'attente de la demande dépassé.
+Délai d'attente de la demande dépassé.
+Délai d'attente de la demande dépassé.
+
+Statistiques Ping pour 192.168.1.1:
+    Paquets : envoyés = 4, reçus = 0, perdus = 4 (perte 100%),

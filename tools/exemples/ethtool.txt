@@ -1,0 +1,4 @@
+Settings for enp3s0:
+	Speed: 100Mb/s
+	Duplex: Half
+	Link detected: yes

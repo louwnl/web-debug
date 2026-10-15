@@ -1,0 +1,5 @@
+traceroute to 1.1.1.1 (1.1.1.1), 30 hops max, 60 byte packets
+ 1  192.168.1.1  0.512 ms  0.488 ms  0.470 ms
+ 2  * * *
+ 3  10.20.0.1  8.1 ms  8.0 ms  8.2 ms
+ 4  1.1.1.1  12.5 ms  12.3 ms  12.4 ms

@@ -14,6 +14,7 @@ On peut aussi ouvrir `index.html` directement depuis le disque, sans serveur ni 
 Pendant le dépannage :
 
 - **Valeurs à remplacer** : saisis une fois la cible, la passerelle, l'interface ou le port, et toutes les commandes (guidé et catalogue) les utilisent, y compris quand tu cliques sur Copier.
+- **Analyse d'un résultat collé** : colle la sortie d'une commande (ipconfig, ip, ifconfig, ping, nslookup, Test-NetConnection, curl, traceroute, netsh wlan…) sous l'étape : l'app relève l'IP, la passerelle, les DNS, les pertes, les erreurs, reporte les valeurs dans les commandes et met en évidence la réponse probable.
 - **Observations** : chaque étape a un champ pour noter ce que tu as vu (une IP, un message d'erreur).
 - **Notes et compte rendu** : des notes libres, puis un compte rendu en texte (étapes, réponses, observations, diagnostic, actions, notes) à copier ou télécharger pour un ticket.
 
@@ -37,6 +38,8 @@ Les fichiers de données sont de simples scripts (pas de JSON ni de modules) pou
 ```sh
 node tools/verifier-donnees.js
 ```
+
+Pour suggérer une réponse à partir d'un résultat collé, ajoute à la réponse un champ `indices` (liste dans `WEBDEBUG.indices`, en haut de `js/analyse.js`). Pour améliorer l'analyse, ajoute une sortie de commande réelle dans `tools/exemples/` et le résultat attendu dans `tools/tester-analyse.js`, puis lance `node tools/tester-analyse.js`.
 
 Le script signale les références cassées, les variantes manquantes, les étapes inatteignables et les boucles. Il tourne aussi automatiquement sur chaque pull request.
 

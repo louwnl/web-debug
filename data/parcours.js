@@ -5,7 +5,9 @@
 // une conclusion. Les commandes sont référencées par leur identifiant dans
 // data/commandes.js, et l'app n'affiche que la variante de l'OS choisi.
 //
-// Étape :      { couche, titre, question, aide?, commandes?, reponses: [{ texte, suite }] }
+// Étape :      { couche, titre, question, aide?, commandes?, reponses: [{ texte, suite, indices? }] }
+//   indices : constats de js/analyse.js qui font suggérer cette réponse quand un
+//   résultat de commande est collé (liste dans WEBDEBUG.indices).
 // Conclusion : { titre, diagnostic, actions: [texte, ...] }
 //
 // Les couches suivent le modèle classique du bas vers le haut, pour toujours
@@ -51,8 +53,8 @@ WEBDEBUG.parcours = {
       aide: "Regarde aussi les voyants du port réseau et l'icône réseau de la barre des tâches. En Wi-Fi, vérifie que la machine est bien associée à un réseau.",
       commandes: ["etat-interfaces"],
       reponses: [
-        { texte: "Oui, la carte est connectée (Up, Connected, active)", suite: "adresse-ip" },
-        { texte: "Non, câble débranché ou carte déconnectée (Ethernet)", suite: "fin-lien-ethernet" },
+        { texte: "Oui, la carte est connectée (Up, Connected, active)", suite: "adresse-ip", indices: ["lien-up"] },
+        { texte: "Non, câble débranché ou carte déconnectée (Ethernet)", suite: "fin-lien-ethernet", indices: ["lien-down"] },
         { texte: "Non, pas associé au Wi-Fi", suite: "wifi-associe" },
         { texte: "La carte n'apparaît pas du tout", suite: "fin-carte-absente" },
       ],
@@ -64,9 +66,9 @@ WEBDEBUG.parcours = {
       aide: "Relève l'adresse IPv4, le masque, la passerelle et les DNS : tu en auras besoin dans les étapes suivantes.",
       commandes: ["config-ip"],
       reponses: [
-        { texte: "Une IP cohérente avec le réseau, et une passerelle", suite: "passerelle" },
-        { texte: "Une IP en 169.254.x.x, ou pas d'IP du tout", suite: "dhcp" },
-        { texte: "Une IP, mais pas de passerelle par défaut", suite: "fin-pas-de-passerelle" },
+        { texte: "Une IP cohérente avec le réseau, et une passerelle", suite: "passerelle", indices: ["ip-ok"] },
+        { texte: "Une IP en 169.254.x.x, ou pas d'IP du tout", suite: "dhcp", indices: ["apipa", "sans-ip"] },
+        { texte: "Une IP, mais pas de passerelle par défaut", suite: "fin-pas-de-passerelle", indices: ["sans-passerelle"] },
         { texte: "Une IP fixe qui ne correspond pas au réseau", suite: "fin-ip-fixe" },
       ],
     },
@@ -76,8 +78,8 @@ WEBDEBUG.parcours = {
       question: "Après un renouvellement du bail, la machine obtient-elle une adresse correcte ?",
       commandes: ["renouveler-dhcp", "config-ip"],
       reponses: [
-        { texte: "Oui, une adresse correcte est obtenue", suite: "fin-dhcp-ok" },
-        { texte: "Non, toujours en 169.254.x.x ou sans IP", suite: "dhcp-autres" },
+        { texte: "Oui, une adresse correcte est obtenue", suite: "fin-dhcp-ok", indices: ["ip-ok"] },
+        { texte: "Non, toujours en 169.254.x.x ou sans IP", suite: "dhcp-autres", indices: ["apipa", "sans-ip"] },
       ],
     },
     "dhcp-autres": {
@@ -96,9 +98,9 @@ WEBDEBUG.parcours = {
       question: "Le ping vers la passerelle (relevée à l'étape précédente) répond-il ?",
       commandes: ["ping-passerelle", "table-arp"],
       reponses: [
-        { texte: "Oui, réponses sans perte", suite: "internet-ip" },
+        { texte: "Oui, réponses sans perte", suite: "internet-ip", indices: ["ping-ok"] },
         { texte: "Non, mais la passerelle apparaît dans la table ARP avec une MAC", suite: "internet-ip" },
-        { texte: "Non, et pas d'entrée ARP valide pour la passerelle", suite: "fin-passerelle-injoignable" },
+        { texte: "Non, et pas d'entrée ARP valide pour la passerelle", suite: "fin-passerelle-injoignable", indices: ["ping-echec"] },
       ],
     },
     "internet-ip": {
@@ -108,8 +110,8 @@ WEBDEBUG.parcours = {
       aide: "Sur certains réseaux d'entreprise le ping vers l'extérieur est bloqué : dans ce cas, passe directement au test DNS puis au test HTTP.",
       commandes: ["ping-ip-publique"],
       reponses: [
-        { texte: "Oui", suite: "dns" },
-        { texte: "Non", suite: "traceroute" },
+        { texte: "Oui", suite: "dns", indices: ["ping-ok"] },
+        { texte: "Non", suite: "traceroute", indices: ["ping-echec"] },
         { texte: "Le ping est bloqué sur ce réseau, je ne peux pas savoir", suite: "dns" },
       ],
     },
@@ -131,8 +133,8 @@ WEBDEBUG.parcours = {
       question: "La résolution d'un nom connu (par exemple www.google.com) renvoie-t-elle une adresse IP ?",
       commandes: ["resolution-dns", "voir-dns"],
       reponses: [
-        { texte: "Oui, une IP est renvoyée", suite: "http" },
-        { texte: "Non, délai dépassé ou erreur", suite: "dns-externe" },
+        { texte: "Oui, une IP est renvoyée", suite: "http", indices: ["dns-ok"] },
+        { texte: "Non, délai dépassé ou erreur", suite: "dns-externe", indices: ["dns-delai", "dns-inconnu"] },
       ],
     },
     "dns-externe": {
@@ -141,8 +143,8 @@ WEBDEBUG.parcours = {
       question: "La résolution du même nom en interrogeant directement 1.1.1.1 fonctionne-t-elle ?",
       commandes: ["resolution-dns-externe"],
       reponses: [
-        { texte: "Oui, le DNS public répond", suite: "fin-dns-serveur" },
-        { texte: "Non, aucun DNS ne répond", suite: "fin-dns-bloque" },
+        { texte: "Oui, le DNS public répond", suite: "fin-dns-serveur", indices: ["dns-ok"] },
+        { texte: "Non, aucun DNS ne répond", suite: "fin-dns-bloque", indices: ["dns-delai"] },
       ],
     },
     http: {
@@ -151,9 +153,9 @@ WEBDEBUG.parcours = {
       question: "Une requête HTTPS vers un site connu (www.google.com) renvoie-t-elle un code de réponse ?",
       commandes: ["requete-http"],
       reponses: [
-        { texte: "Oui, code 200 ou 301/302", suite: "fin-navigateur" },
-        { texte: "Erreur de certificat", suite: "certificat" },
-        { texte: "Délai dépassé ou connexion refusée", suite: "proxy" },
+        { texte: "Oui, code 200 ou 301/302", suite: "fin-navigateur", indices: ["http-ok"] },
+        { texte: "Erreur de certificat", suite: "certificat", indices: ["certificat"] },
+        { texte: "Délai dépassé ou connexion refusée", suite: "proxy", indices: ["port-delai", "port-refuse"] },
       ],
     },
     proxy: {
@@ -187,10 +189,10 @@ WEBDEBUG.parcours = {
       aide: "Si l'utilisateur se connecte par adresse IP directement, réponds « Oui ».",
       commandes: ["resolution-dns", "fichier-hosts"],
       reponses: [
-        { texte: "Oui, la bonne IP", suite: "service-port" },
-        { texte: "Non, nom introuvable (NXDOMAIN)", suite: "fin-nom-introuvable" },
+        { texte: "Oui, la bonne IP", suite: "service-port", indices: ["dns-ok"] },
+        { texte: "Non, nom introuvable (NXDOMAIN)", suite: "fin-nom-introuvable", indices: ["dns-inconnu"] },
         { texte: "Une IP, mais pas la bonne (ancienne adresse)", suite: "fin-dns-obsolete" },
-        { texte: "Délai dépassé", suite: "dns-externe" },
+        { texte: "Délai dépassé", suite: "dns-externe", indices: ["dns-delai"] },
       ],
     },
     "service-port": {
@@ -199,9 +201,9 @@ WEBDEBUG.parcours = {
       question: "Le test de connexion TCP sur le port du service (443 pour HTTPS, 3389 pour RDP, 445 pour un partage…) réussit-il ?",
       commandes: ["test-port", "ping-cible"],
       reponses: [
-        { texte: "Oui, le port est ouvert", suite: "service-application" },
-        { texte: "Connexion refusée", suite: "fin-service-arrete" },
-        { texte: "Délai dépassé", suite: "service-chemin" },
+        { texte: "Oui, le port est ouvert", suite: "service-application", indices: ["port-ouvert"] },
+        { texte: "Connexion refusée", suite: "fin-service-arrete", indices: ["port-refuse"] },
+        { texte: "Délai dépassé", suite: "service-chemin", indices: ["port-delai"] },
       ],
     },
     "service-chemin": {
@@ -210,8 +212,8 @@ WEBDEBUG.parcours = {
       question: "Le traceroute vers le serveur arrive-t-il jusqu'au bout ?",
       commandes: ["traceroute"],
       reponses: [
-        { texte: "Oui, le serveur est atteint", suite: "fin-port-filtre" },
-        { texte: "Non, ça s'arrête avant", suite: "fin-serveur-injoignable" },
+        { texte: "Oui, le serveur est atteint", suite: "fin-port-filtre", indices: ["trace-complete"] },
+        { texte: "Non, ça s'arrête avant", suite: "fin-serveur-injoignable", indices: ["trace-bloquee"] },
       ],
     },
     "service-application": {
@@ -220,10 +222,10 @@ WEBDEBUG.parcours = {
       question: "Pour un site web, quel code renvoie la requête HTTP ? Pour une autre application, qu'indique son message d'erreur ?",
       commandes: ["requete-http", "verifier-certificat"],
       reponses: [
-        { texte: "Erreur de certificat", suite: "certificat" },
-        { texte: "401 ou 403 (accès refusé)", suite: "fin-droits" },
-        { texte: "Erreur 5xx", suite: "fin-erreur-serveur" },
-        { texte: "Tout répond bien en ligne de commande", suite: "fin-navigateur" },
+        { texte: "Erreur de certificat", suite: "certificat", indices: ["certificat"] },
+        { texte: "401 ou 403 (accès refusé)", suite: "fin-droits", indices: ["http-refuse"] },
+        { texte: "Erreur 5xx", suite: "fin-erreur-serveur", indices: ["http-erreur"] },
+        { texte: "Tout répond bien en ligne de commande", suite: "fin-navigateur", indices: ["http-ok"] },
       ],
     },
 
@@ -246,8 +248,8 @@ WEBDEBUG.parcours = {
       aide: "Laisse tourner le ping pendant que le problème se produit.",
       commandes: ["ping-long", "connexions-actives"],
       reponses: [
-        { texte: "Pertes ou latence élevée dès la passerelle", suite: "perf-support" },
-        { texte: "Passerelle stable", suite: "perf-internet" },
+        { texte: "Pertes ou latence élevée dès la passerelle", suite: "perf-support", indices: ["ping-pertes", "ping-echec"] },
+        { texte: "Passerelle stable", suite: "perf-internet", indices: ["ping-ok"] },
       ],
     },
     "perf-support": {
@@ -265,8 +267,8 @@ WEBDEBUG.parcours = {
       question: "Quelle vitesse et quel duplex affiche la carte ?",
       commandes: ["vitesse-lien", "conflit-ip"],
       reponses: [
-        { texte: "10 ou 100 Mb/s, ou half-duplex", suite: "fin-cable" },
-        { texte: "1 Gb/s ou plus, full-duplex", suite: "fin-reseau-sature" },
+        { texte: "10 ou 100 Mb/s, ou half-duplex", suite: "fin-cable", indices: ["lien-lent"] },
+        { texte: "1 Gb/s ou plus, full-duplex", suite: "fin-reseau-sature", indices: ["lien-rapide"] },
         { texte: "Un conflit d'adresse IP est signalé", suite: "fin-conflit-ip" },
       ],
     },
@@ -287,8 +289,8 @@ WEBDEBUG.parcours = {
       question: "Le ping de 1472 octets sans fragmentation vers un site concerné passe-t-il ?",
       commandes: ["test-mtu"],
       reponses: [
-        { texte: "Non, il faut descendre la taille pour que ça passe", suite: "fin-mtu" },
-        { texte: "Oui, 1472 passe", suite: "proxy" },
+        { texte: "Non, il faut descendre la taille pour que ça passe", suite: "fin-mtu", indices: ["mtu-trop-grand"] },
+        { texte: "Oui, 1472 passe", suite: "proxy", indices: ["mtu-ok"] },
       ],
     },
     "perf-dns": {
@@ -331,9 +333,9 @@ WEBDEBUG.parcours = {
       question: "Quel niveau de signal et quel débit indique la connexion Wi-Fi ?",
       commandes: ["etat-wifi", "reseaux-wifi"],
       reponses: [
-        { texte: "Signal faible (moins de 40 % ou sous -75 dBm)", suite: "fin-wifi-signal" },
+        { texte: "Signal faible (moins de 40 % ou sous -75 dBm)", suite: "fin-wifi-signal", indices: ["wifi-faible"] },
         { texte: "Bon signal, mais beaucoup de réseaux sur le même canal", suite: "fin-wifi-interferences" },
-        { texte: "Bon signal, canal dégagé", suite: "adresse-ip" },
+        { texte: "Bon signal, canal dégagé", suite: "adresse-ip", indices: ["wifi-bon"] },
       ],
     },
   },
