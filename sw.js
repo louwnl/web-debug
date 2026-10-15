@@ -10,6 +10,7 @@ const FICHIERS = [
   "index.html",
   "css/style.css",
   "js/app.js",
+  "js/perso.js",
   "data/commandes.js",
   "data/parcours.js",
   "manifest.webmanifest",
