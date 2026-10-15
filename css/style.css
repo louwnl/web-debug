@@ -69,7 +69,7 @@ select, input[type="search"] {
   padding: 6px 10px;
 }
 
-.onglets { display: flex; gap: 4px; margin-top: 16px; border-bottom: 1px solid var(--bord); }
+.onglets { display: flex; gap: 4px; margin-top: 16px; border-bottom: 1px solid var(--bord); overflow-x: auto; scrollbar-width: none; }
 
 .onglets button {
   font: inherit;
@@ -133,7 +133,7 @@ h3 { font-size: 1rem; margin: 0 0 6px; }
   word-break: break-word;
 }
 .ligne-cmd pre .var { color: #fbbf24; }
-.copier {
+.copier, .copier-equipement {
   font: inherit;
   font-size: .85rem;
   border: none;
@@ -278,3 +278,10 @@ details.analyse textarea { margin-top: 8px; font: 13px/1.4 ui-monospace, "Cascad
 .badge { font-size: .8rem; border: 1px solid var(--bord); border-radius: 999px; padding: 1px 8px; color: var(--discret); overflow-wrap: anywhere; }
 .discret { color: var(--discret); font-size: .85rem; }
 .session .actions-nav { flex-wrap: wrap; }
+
+/* Onglet Équipements */
+.choix-equipement { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 2fr); gap: 8px; margin-bottom: 8px; }
+.choix-equipement select, .choix-equipement input { width: 100%; }
+@media (max-width: 600px) { .choix-equipement { grid-template-columns: 1fr; } }
+#intro-equipement { margin: 0 0 12px; }
+.onglets button { white-space: nowrap; }
