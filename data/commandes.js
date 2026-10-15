@@ -3,7 +3,7 @@
 // Chaque commande a un identifiant (la clé), un titre, une catégorie, une
 // variante par système d'exploitation (windows, macos, linux) et une aide à la
 // lecture du résultat. Les valeurs à remplacer sont notées entre chevrons :
-// <cible>, <passerelle>, <interface>, <port>, <serveur-dns>.
+// <cible>, <passerelle>, <interface>, <port>, <mac>…
 //
 // Une variante vaut null quand la commande n'a pas d'équivalent sur cet OS.
 // Le fichier est un simple script (pas de module) pour que l'app marche aussi
@@ -20,6 +20,17 @@ WEBDEBUG.categories = {
   service: "Ports et services",
   wifi: "Wi-Fi",
   performance: "Performances et MTU",
+  vpn: "VPN",
+  partage: "Partages de fichiers et impression",
+  ipv6: "IPv6",
+  wol: "Wake-on-LAN",
+};
+
+// Libellés des valeurs à remplacer propres à ces commandes (les autres sont dans js/app.js).
+WEBDEBUG.libellesValeurs = {
+  utilisateur: "Utilisateur",
+  imprimante: "Nom de l'imprimante",
+  mac: "Adresse MAC (AA:BB:CC:DD:EE:FF)",
 };
 
 WEBDEBUG.commandes = {
@@ -337,5 +348,125 @@ WEBDEBUG.commandes = {
       linux: { cmd: "ss -tnp state established", note: "Débit par processus : sudo nethogs" },
     },
     lecture: "Un processus avec beaucoup de connexions ou un gros volume (sauvegarde, mise à jour, synchronisation cloud) peut saturer la ligne.",
+  },
+
+  // --- VPN --------------------------------------------------------------------
+  "vpn-etat": {
+    titre: "Voir l'état des connexions VPN",
+    categorie: "vpn",
+    os: {
+      windows: { cmd: "Get-VpnConnection | Format-Table Name, ServerAddress, ConnectionStatus", note: "PowerShell. VPN intégré à Windows. Pour FortiClient, GlobalProtect, OpenVPN ou WireGuard : journal du client, et ipconfig /all pour voir sa carte virtuelle" },
+      macos: { cmd: "scutil --nc list", note: "VPN configurés dans Réglages. Les clients tiers ont leur propre journal" },
+      linux: { cmd: "nmcli connection show --active", note: "WireGuard : sudo wg show (« latest handshake » récent = tunnel actif)" },
+    },
+    lecture: "Le VPN doit être « Connected » / « Connecté ». Une carte virtuelle (PPP, TAP, tun, wg, Wintun) avec une adresse IP du réseau de l'entreprise confirme que le tunnel est monté.",
+  },
+
+  // --- Partages et impression -----------------------------------------------
+  "smb-connexions": {
+    titre: "Voir les partages de fichiers connectés",
+    categorie: "partage",
+    os: {
+      windows: { cmd: "Get-SmbConnection; net use", note: "PowerShell. Dialect = version SMB négociée" },
+      macos: { cmd: "smbutil statshares -a" },
+      linux: { cmd: "smbclient -L //<cible> -U <utilisateur>", note: "Liste les partages du serveur. Paquet smbclient" },
+    },
+    lecture: "« net use » affiche les lecteurs réseau et leur état (OK, Déconnecté, Indisponible). La version SMB doit être 2 ou 3 : SMB1 est désactivé par défaut sur les systèmes récents.",
+  },
+  "smb-identifiants": {
+    titre: "Voir les identifiants enregistrés pour un serveur",
+    categorie: "partage",
+    os: {
+      windows: { cmd: "cmdkey /list", note: "Supprimer un identifiant erroné : cmdkey /delete:<cible>" },
+      macos: { cmd: "security find-internet-password -s <cible>", note: "Ou Trousseaux d'accès, rechercher le nom du serveur" },
+      linux: { cmd: "findmnt -t cifs", note: "Montre les partages montés et leurs options (utilisateur, version)" },
+    },
+    lecture: "Un ancien mot de passe enregistré pour le serveur provoque des refus d'accès ou des verrouillages de compte. Supprime-le puis reconnecte-toi.",
+  },
+  "imprimante-file": {
+    titre: "Voir les imprimantes, leurs ports et leur file",
+    categorie: "partage",
+    os: {
+      windows: { cmd: "Get-Printer | Format-Table Name, PortName, PrinterStatus; Get-PrinterPort | Format-Table Name, PrinterHostAddress", note: "PowerShell. Travaux : Get-PrintJob -PrinterName '<imprimante>'" },
+      macos: { cmd: "lpstat -p -v -o" },
+      linux: { cmd: "lpstat -p -v -o" },
+    },
+    lecture: "Vérifie que le port de l'imprimante pointe vers son adresse IP actuelle, que l'état n'est pas en erreur et qu'aucun travail ne bloque la file.",
+  },
+  "spooler": {
+    titre: "Vérifier le service d'impression",
+    categorie: "partage",
+    os: {
+      windows: { cmd: "Get-Service Spooler", note: "Redémarrer (administrateur) : Restart-Service Spooler -Force" },
+      macos: { cmd: "lpstat -r", note: "Annuler tous les travaux : cancel -a" },
+      linux: { cmd: "systemctl status cups", note: "Redémarrer : sudo systemctl restart cups. Annuler tous les travaux : cancel -a" },
+    },
+    lecture: "Le service doit être « Running » / « active ». Un service arrêté ou une file bloquée empêche toute impression, même si l'imprimante répond sur le réseau.",
+  },
+
+  // --- IPv6 -------------------------------------------------------------------
+  "config-ipv6": {
+    titre: "Afficher les adresses IPv6",
+    categorie: "ipv6",
+    os: {
+      windows: { cmd: "Get-NetIPAddress -AddressFamily IPv6 | Format-Table InterfaceAlias, IPAddress, PrefixOrigin", note: "PowerShell" },
+      macos: { cmd: "ifconfig | grep inet6" },
+      linux: { cmd: "ip -6 addr show scope global" },
+    },
+    lecture: "Une adresse en fe80:: est seulement locale au lien. Une adresse globale commence par 2 ou 3 (ex. 2a01:…). Sans adresse globale, la machine n'utilise pas IPv6 vers Internet.",
+  },
+  "ping-ipv6": {
+    titre: "Pinger une adresse publique en IPv6",
+    categorie: "ipv6",
+    os: {
+      windows: { cmd: "ping -6 -n 4 2606:4700:4700::1111" },
+      macos: { cmd: "ping6 -c 4 2606:4700:4700::1111" },
+      linux: { cmd: "ping -6 -c 4 2606:4700:4700::1111" },
+    },
+    lecture: "Des réponses = l'accès IPv6 fonctionne. « No route to host » ou « Le délai d'attente » = IPv6 est configuré sur la machine mais ne sort pas.",
+  },
+  "routes-ipv6": {
+    titre: "Afficher les routes IPv6",
+    categorie: "ipv6",
+    os: {
+      windows: { cmd: "route print -6" },
+      macos: { cmd: "netstat -rn -f inet6" },
+      linux: { cmd: "ip -6 route" },
+    },
+    lecture: "Il faut une route par défaut (::/0 ou « default ») vers une adresse fe80:: du routeur, apprise par les annonces du routeur (RA).",
+  },
+
+  // --- Connectivité : portail captif ------------------------------------------
+  "detect-portail": {
+    titre: "Détecter un portail captif",
+    categorie: "connectivite",
+    os: {
+      windows: { cmd: "curl.exe -s -i http://www.msftconnecttest.com/connecttest.txt", note: "Page de test utilisée par Windows" },
+      macos: { cmd: "curl -s -i http://captive.apple.com/hotspot-detect.html", note: "Page de test utilisée par macOS et iOS" },
+      linux: { cmd: "curl -s -i http://connectivitycheck.gstatic.com/generate_204" },
+    },
+    lecture: "Sans portail : code 200 avec « Microsoft Connect Test » ou « Success », ou code 204. Avec portail : redirection (301, 302, 307) ou page HTML de connexion de l'hôtel, de la gare… Ouvre alors un navigateur sur un site en http:// pour faire apparaître la page.",
+  },
+
+  // --- Wake-on-LAN --------------------------------------------------------------
+  "wol-verifier": {
+    titre: "Vérifier que la machine accepte le réveil à distance",
+    categorie: "wol",
+    os: {
+      windows: { cmd: "Get-NetAdapterPowerManagement | Format-List Name, WakeOnMagicPacket; powercfg /devicequery wake_armed", note: "PowerShell, sur la machine à réveiller. Désactiver aussi le démarrage rapide de Windows" },
+      macos: { cmd: "pmset -g | grep womp", note: "womp 1 = réveil réseau activé (Réglages, Batterie ou Économiseur d'énergie)" },
+      linux: { cmd: "sudo ethtool <interface> | grep Wake-on", note: "« Wake-on: g » = paquet magique accepté. Activer : sudo ethtool -s <interface> wol g" },
+    },
+    lecture: "La carte doit accepter le « paquet magique ». Il faut aussi souvent activer le Wake-on-LAN dans le BIOS/UEFI. Note l'adresse MAC de la carte filaire, elle sert à l'envoi.",
+  },
+  "wol-envoyer": {
+    titre: "Envoyer un paquet magique (Wake-on-LAN)",
+    categorie: "wol",
+    os: {
+      windows: { cmd: "$m=[byte[]](('<mac>' -split '[:-]') | % {[Convert]::ToByte($_,16)}); $p=[byte[]]((,0xFF*6)+($m*16)); $u=New-Object Net.Sockets.UdpClient; $u.EnableBroadcast=$true; [void]$u.Send($p,$p.Length,'255.255.255.255',9); $u.Close()", note: "PowerShell, sans rien installer. <mac> au format AA:BB:CC:DD:EE:FF" },
+      macos: { cmd: "wakeonlan <mac>", note: "À installer : brew install wakeonlan" },
+      linux: { cmd: "wakeonlan <mac>", note: "Paquet wakeonlan. Ou : sudo etherwake -i <interface> <mac>" },
+    },
+    lecture: "La commande ne renvoie rien : vérifie si la machine démarre. Le paquet est diffusé sur le réseau local seulement, il ne traverse pas un routeur sans configuration particulière.",
   },
 };

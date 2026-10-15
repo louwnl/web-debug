@@ -11,10 +11,10 @@ const racine = path.join(__dirname, "..");
 const contexte = {};
 contexte.window = contexte; // comme dans un navigateur, window est l'objet global
 vm.createContext(contexte);
-for (const fichier of ["data/commandes.js", "data/parcours.js"]) {
+for (const fichier of ["data/commandes.js", "data/parcours.js", "js/analyse.js"]) {
   vm.runInContext(fs.readFileSync(path.join(racine, fichier), "utf8"), contexte, { filename: fichier });
 }
-const { commandes, categories, parcours, couches } = contexte.window.WEBDEBUG;
+const { commandes, categories, parcours, couches, indices } = contexte.window.WEBDEBUG;
 const { etapes, conclusions, depart } = parcours;
 
 const erreurs = [];
@@ -44,6 +44,9 @@ for (const [id, e] of Object.entries(etapes)) {
   if (!e.reponses || e.reponses.length < 2) erreurs.push(`étape ${id} : il faut au moins deux réponses`);
   for (const r of e.reponses || []) {
     if (!etapes[r.suite] && !conclusions[r.suite]) erreurs.push(`étape ${id} : suite inconnue « ${r.suite} »`);
+    for (const i of r.indices || []) {
+      if (!(i in indices)) erreurs.push(`étape ${id} : indice inconnu « ${i} » (voir WEBDEBUG.indices dans js/analyse.js)`);
+    }
   }
 }
 

@@ -1,0 +1,8 @@
+DNS request timed out.
+    timeout was 2 seconds.
+Serveur :   UnKnown
+Address:  10.0.0.53
+
+DNS request timed out.
+    timeout was 2 seconds.
+*** Le délai de requête sur UnKnown est dépassé
