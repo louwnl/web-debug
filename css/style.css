@@ -32,6 +32,7 @@
 }
 
 * { box-sizing: border-box; }
+[hidden] { display: none !important; }
 
 body {
   margin: 0;
@@ -183,3 +184,45 @@ details.lecture p { margin: 6px 0 0; }
 #recherche { width: 100%; margin-bottom: 16px; }
 .categorie h2 { font-size: 1rem; color: var(--discret); text-transform: uppercase; letter-spacing: .05em; margin: 24px 0 8px; }
 .vide { color: var(--discret); }
+
+/* Session : valeurs, observations, notes, compte rendu */
+.valeurs {
+  background: var(--carte);
+  border: 1px dashed var(--bord);
+  border-radius: var(--rayon);
+  padding: 10px 16px 12px;
+  margin-bottom: 16px;
+}
+.titre-valeurs { margin: 0 0 8px; font-size: .85rem; color: var(--discret); }
+.champs-valeurs { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 8px 12px; }
+.champs-valeurs label, .observation { display: flex; flex-direction: column; gap: 4px; font-size: .85rem; color: var(--discret); }
+.observation { margin: 12px 0 0; }
+input[type="text"], textarea {
+  font: inherit;
+  font-size: .95rem;
+  color: var(--texte);
+  background: var(--fond);
+  border: 1px solid var(--bord);
+  border-radius: 8px;
+  padding: 6px 10px;
+  width: 100%;
+}
+.champs-valeurs input { font-family: ui-monospace, "Cascadia Code", Consolas, monospace; }
+textarea { resize: vertical; }
+.ligne-cmd pre .var.remplie { color: #86efac; }
+.conclusion li .var { font-family: ui-monospace, "Cascadia Code", Consolas, monospace; font-size: .9em; }
+
+.session summary { cursor: pointer; font-weight: 600; }
+.actions-nav { flex-wrap: wrap; }
+.principal {
+  font: inherit;
+  font-size: .9rem;
+  background: var(--accent);
+  color: var(--accent-texte);
+  border: 1px solid var(--accent);
+  border-radius: 8px;
+  padding: 6px 12px;
+  cursor: pointer;
+}
+.danger { color: #dc2626; }
+@media (prefers-color-scheme: dark) { .danger { color: #f87171; } }

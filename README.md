@@ -9,7 +9,13 @@ Ouvre `index.html` dans un navigateur, directement depuis le disque : aucun serv
 - **Diagnostic guidé** : réponds aux questions, l'app affiche à chaque étape la commande à taper et comment lire le résultat, jusqu'à un diagnostic avec les actions à faire. Le fil en haut permet de revenir à une étape précédente.
 - **Catalogue** : toutes les commandes, classées par catégorie, avec une recherche.
 
-Le choix du système est retenu d'une visite à l'autre.
+Pendant le dépannage :
+
+- **Valeurs à remplacer** : saisis une fois la cible, la passerelle, l'interface ou le port, et toutes les commandes (guidé et catalogue) les utilisent, y compris quand tu cliques sur Copier.
+- **Observations** : chaque étape a un champ pour noter ce que tu as vu (une IP, un message d'erreur).
+- **Notes et compte rendu** : des notes libres, puis un compte rendu en texte (étapes, réponses, observations, diagnostic, actions, notes) à copier ou télécharger pour un ticket.
+
+Le choix du système et la session en cours sont gardés dans le navigateur, même après un rechargement, jusqu'à « Nouvelle session ».
 
 ## Contenu
 

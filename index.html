@@ -27,11 +27,27 @@
   <main>
     <section id="vue-guide" role="tabpanel" aria-labelledby="onglet-guide">
       <ol id="fil" class="fil" aria-label="Étapes déjà suivies"></ol>
+      <div id="valeurs-guide" class="valeurs" hidden></div>
       <div id="etape"></div>
+
+      <details class="carte session">
+        <summary>Notes et compte rendu</summary>
+        <label class="observation">
+          <span>Notes libres sur ce dépannage</span>
+          <textarea id="notes" rows="4" placeholder="Machine, utilisateur, contexte, ce qui a été tenté…"></textarea>
+        </label>
+        <div class="actions-nav">
+          <button type="button" class="principal" data-action="exporter">Copier le compte rendu</button>
+          <button type="button" class="secondaire" data-action="telecharger">Télécharger (.txt)</button>
+          <button type="button" class="secondaire danger" data-action="nouvelle-session">Nouvelle session</button>
+        </div>
+        <p class="note">La session (étapes, observations, notes, valeurs) est gardée dans ce navigateur jusqu'à « Nouvelle session ».</p>
+      </details>
     </section>
 
     <section id="vue-catalogue" role="tabpanel" aria-labelledby="onglet-catalogue" hidden>
       <input id="recherche" type="search" placeholder="Chercher une commande (ping, dns, mtu, wifi…)" autocomplete="off">
+      <div id="valeurs-catalogue" class="valeurs" hidden></div>
       <div id="liste-commandes"></div>
     </section>
   </main>
