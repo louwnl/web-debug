@@ -26,6 +26,7 @@
   <nav class="onglets" role="tablist">
     <button type="button" role="tab" id="onglet-guide" aria-controls="vue-guide" aria-selected="true">Diagnostic guidé</button>
     <button type="button" role="tab" id="onglet-catalogue" aria-controls="vue-catalogue" aria-selected="false">Catalogue</button>
+    <button type="button" role="tab" id="onglet-outils" aria-controls="vue-outils" aria-selected="false">Outils</button>
   </nav>
 
   <main>
@@ -59,11 +60,37 @@
       <div id="valeurs-catalogue" class="valeurs" hidden></div>
       <div id="liste-commandes"></div>
     </section>
+
+    <section id="vue-outils" role="tabpanel" aria-labelledby="onglet-outils" hidden>
+      <div class="carte outil">
+        <h2>Calculateur de sous-réseau</h2>
+        <div class="champs-outil">
+          <label><span>Adresse et masque</span><input type="text" id="outil-reseau" placeholder="192.168.1.42/24 ou 192.168.1.42 255.255.255.0" spellcheck="false" autocomplete="off"></label>
+          <label><span>Comparer avec une autre adresse (facultatif)</span><input type="text" id="outil-comparer" placeholder="ex. la passerelle 192.168.1.1" spellcheck="false" autocomplete="off"></label>
+        </div>
+        <div id="resultat-reseau" aria-live="polite"></div>
+      </div>
+
+      <div class="carte outil">
+        <h2>Fabricant d'une adresse MAC</h2>
+        <label class="observation"><span>Une adresse MAC, ou une table ARP entière (arp -a, ip neigh)</span>
+          <textarea id="outil-mac" rows="3" spellcheck="false" placeholder="3C-52-82-11-22-33"></textarea></label>
+        <div id="resultat-mac" aria-live="polite"></div>
+      </div>
+
+      <div class="carte outil">
+        <h2>Ports courants</h2>
+        <input type="search" id="outil-port" placeholder="Chercher un port ou un service (443, rdp, impression…)" autocomplete="off">
+        <div id="resultat-ports"></div>
+      </div>
+    </section>
   </main>
 
   <script src="data/commandes.js"></script>
   <script src="data/parcours.js"></script>
   <script src="js/analyse.js"></script>
   <script src="js/app.js"></script>
+  <script src="data/ports.js"></script>
+  <script src="js/outils.js"></script>
 </body>
 </html>
