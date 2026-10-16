@@ -12,6 +12,7 @@ On peut aussi ouvrir `index.html` directement depuis le disque, sans serveur ni 
 - **Catalogue** : toutes les commandes, classées par catégorie, avec une recherche.
 - **Mes commandes** : dans le catalogue, ajoute tes propres commandes et astuces (une variante par OS, valeurs à remplacer comprises), sans toucher au code. Elles sont gardées dans le navigateur ; « Exporter » les enregistre dans un fichier .json que « Importer » recharge, sur ce poste ou un autre.
 - **Équipements** : les commandes de base des routeurs, commutateurs et pare-feu (Cisco IOS, Palo Alto, FortiGate, Juniper, MikroTik, Aruba CX, pfSense/OPNsense), classées par thème, avec recherche, valeurs à remplacer et bouton Copier. Les commandes sont dans `data/equipements.js` : ajouter une marque, c'est ajouter une entrée.
+- **Fiche** : un aide-mémoire réseau (adressage IP et calcul des blocs, ARP et passerelle, VLAN et trunk, routage, NAT et firewall, VPN IPsec, commandes utiles, méthode de diagnostic), avec un sommaire. Le texte est dans `fiche/fiche-reseau.md` : après modification, lancer `node tools/generer-fiche.js` pour mettre à jour `data/fiche.js`.
 
 Pendant le dépannage :
 
