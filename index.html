@@ -28,6 +28,7 @@
     <button type="button" role="tab" id="onglet-catalogue" aria-controls="vue-catalogue" aria-selected="false">Catalogue</button>
     <button type="button" role="tab" id="onglet-outils" aria-controls="vue-outils" aria-selected="false">Outils</button>
     <button type="button" role="tab" id="onglet-equipements" aria-controls="vue-equipements" aria-selected="false">Équipements</button>
+    <button type="button" role="tab" id="onglet-fiche" aria-controls="vue-fiche" aria-selected="false">Fiche</button>
   </nav>
 
   <main>
@@ -124,6 +125,8 @@
       <div id="valeurs-equipement" class="valeurs" hidden></div>
       <div id="liste-equipement"></div>
     </section>
+
+    <section id="vue-fiche" role="tabpanel" aria-labelledby="onglet-fiche" hidden></section>
   </main>
 
   <script src="data/commandes.js"></script>
@@ -135,5 +138,7 @@
   <script src="js/outils.js"></script>
   <script src="data/equipements.js"></script>
   <script src="js/equipements.js"></script>
+  <script src="data/fiche.js"></script>
+  <script src="js/fiche.js"></script>
 </body>
 </html>

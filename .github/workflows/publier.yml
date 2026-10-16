@@ -29,6 +29,8 @@ jobs:
       - run: node tools/tester-analyse.js
       - run: node tools/tester-outils.js
       - run: node tools/tester-perso.js
+      - name: Fiche à jour avec fiche/fiche-reseau.md
+        run: node tools/generer-fiche.js && git diff --exit-code data/fiche.js
       - name: Préparer le site
         run: |
           mkdir _site

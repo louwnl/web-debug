@@ -285,3 +285,31 @@ details.analyse textarea { margin-top: 8px; font: 13px/1.4 ui-monospace, "Cascad
 @media (max-width: 600px) { .choix-equipement { grid-template-columns: 1fr; } }
 #intro-equipement { margin: 0 0 12px; }
 .onglets button { white-space: nowrap; }
+
+/* Onglet Fiche */
+.titre-fiche { font-size: 1.15rem; font-weight: 700; margin: 4px 0 10px; }
+.sommaire-fiche { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 16px; }
+.section-fiche { scroll-margin-top: 12px; }
+.section-fiche h2 { margin-top: 0; font-size: 1.15rem; }
+.section-fiche p, .section-fiche li { line-height: 1.55; }
+.section-fiche li { margin: 3px 0; }
+.section-fiche :not(pre) > code { font-family: ui-monospace, "Cascadia Code", Consolas, monospace; font-size: .88em; background: var(--fond); border: 1px solid var(--bord); border-radius: 5px; padding: 1px 5px; overflow-wrap: anywhere; }
+.defile { overflow-x: auto; margin: 10px 0; }
+.tableau-fiche { border-collapse: collapse; font-size: .9rem; min-width: 100%; }
+.tableau-fiche th, .tableau-fiche td { text-align: left; padding: 6px 10px; border-bottom: 1px solid var(--bord); vertical-align: top; }
+.tableau-fiche th { color: var(--discret); font-weight: 600; }
+.schema-fiche { margin: 12px 0; overflow-x: auto; }
+.schema { width: 100%; min-width: 520px; max-width: 640px; height: auto; display: block; margin: 0 auto; --v10: #2563eb; --v20: #d97706; }
+.schema .lien { stroke-width: 3; }
+.schema .lien.v10 { stroke: var(--v10); }
+.schema .lien.v20 { stroke: var(--v20); }
+.schema .lien.trunk { stroke: var(--texte); stroke-width: 5; stroke-dasharray: 10 5; }
+.schema .boite { fill: var(--carte); stroke: var(--texte); stroke-width: 1.5; }
+.schema .pastille { fill: none; stroke-width: 1.5; }
+.schema .pastille.v20 { stroke: var(--v20); }
+.schema text { font: 12px system-ui, sans-serif; fill: var(--texte); }
+.schema .nom { font-size: 15px; font-weight: 700; }
+.schema .etiquette.v10 { fill: var(--v10); }
+.schema .etiquette.v20 { fill: var(--v20); }
+.schema .discret { fill: var(--discret); }
+@media (prefers-color-scheme: dark) { .schema { --v10: #60a5fa; --v20: #fbbf24; } }
