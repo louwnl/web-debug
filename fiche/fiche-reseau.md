@@ -162,6 +162,80 @@ Encapsuler = pour arriver. Chiffrer = pour ne pas être lu. Un paquet chiffré m
 
 Avec `diagnose debug flow`, penser à désactiver le debug après usage : `diagnose debug disable` puis `diagnose debug reset`.
 
+## Profils de sécurité (FortiGate)
+
+Une policy sans profil ne voit que l'enveloppe du paquet (interfaces, IP, service, action) : un fichier infecté téléchargé en HTTPS passe. Les profils de sécurité, attachés à une policy, examinent le **contenu** de ce qu'elle autorise.
+
+| Profil | Ce qu'il examine | Exemple de blocage |
+| --- | --- | --- |
+| AntiVirus | les fichiers qui transitent | un exécutable contenant un virus |
+| Web Filter | l'adresse du site, classée par catégorie | jeux d'argent, phishing |
+| DNS Filter | les noms de domaine demandés | un domaine connu comme malveillant |
+| Application Control | l'application réelle, quel que soit le port | BitTorrent sur le port 443 |
+| IPS | des motifs d'attaque connus | exploitation d'une faille sur un serveur |
+
+**Inspection SSL** : le HTTPS est chiffré, donc illisible pour le Forti sans déchiffrement.
+
+- *Certificate inspection* : ne déchiffre rien, regarde le certificat et le nom du site (suffisant pour le Web Filter par catégorie, pas pour analyser les fichiers).
+- *Deep inspection* : le Forti déchiffre, analyse, puis rechiffre. Il faut installer le certificat de l'autorité du Forti sur les PC, et exclure les sites sensibles (banque, messagerie) pour la confidentialité.
+
+**Déploiement** : créer le profil, l'attacher à la policy, tester, lire les logs, puis ajuster. Commencer en **Monitor** (journalise sans bloquer), passer en **Block** une fois les logs vérifiés.
+
+| Profil à tester | Comment |
+| --- | --- |
+| AntiVirus | télécharger le fichier EICAR (faux virus inoffensif) |
+| Web Filter | visiter un site de la catégorie visée |
+| Application Control | lancer l'application visée |
+
+Dans tous les cas, vérifier le résultat dans Log & Report.
+
+## STP (Spanning Tree)
+
+STP évite les boucles entre switchs : une trame Ethernet n'a pas de TTL, donc une boucle la fait tourner indéfiniment et provoque une tempête de broadcast. STP désactive logiquement certains ports pour ne garder qu'un chemin actif entre deux points.
+
+1. **Root bridge** : le switch avec le plus petit Bridge ID (priorité, puis adresse MAC). Priorité par défaut 32768 ; on l'abaisse à la main sur le switch central (par exemple 4096).
+2. **Root port** : sur chaque switch non root, le port qui mène au root bridge au coût total le plus faible.
+3. **Designated port** : sur chaque câble, le port du switch le plus proche du root bridge ; à coût égal, celui du plus petit Bridge ID.
+4. **Port bloqué** : tous les autres. Il ne transmet pas de données et sert de secours.
+
+Pour comparer deux MAC : octet par octet de gauche à droite, en hexadécimal (0 < 1 < … < 9 < a < … < f), on s'arrête à la première différence. `00:11:…` est plus petit que `00:aa:…`.
+
+| État du port | Ce qu'il fait | Durée (STP classique) |
+| --- | --- | --- |
+| Blocking | écoute les messages STP | jusqu'à 20 s |
+| Listening | participe au calcul, ne transmet pas de données | 15 s |
+| Learning | apprend les MAC, ne transmet pas de données | 15 s |
+| Forwarding | transmet normalement |  |
+
+Un port qui vient d'être branché reste orange environ 30 secondes (listening, puis learning) avant de passer au vert.
+
+- **RSTP** (`spanning-tree mode rapid-pvst` sur Cisco) réactive un chemin de secours en quelques secondes. Le Catalyst 3750X utilise par défaut PVST+, l'ancienne version par VLAN.
+- **PortFast** (`spanning-tree portfast`) saute listening et learning sur un port où l'on branche un PC ou un serveur, jamais un autre switch.
+
+## OSPF
+
+OSPF est un protocole de routage dynamique de type IGP (à l'intérieur d'un AS, un ensemble de réseaux gérés par une même organisation) et à état de liens : chaque routeur construit la même carte du réseau, puis calcule seul ses chemins.
+
+1. **Hello** : les routeurs découvrent leurs voisins.
+2. **Échange des liens** : chaque routeur annonce ses liens et leur coût à tous les autres.
+3. **Calcul** : chacun déduit de la carte le chemin de plus faible coût total (Dijkstra) et remplit sa table de routage.
+
+Quand un lien tombe, la panne est détectée et annoncée, chaque routeur met sa carte à jour et recalcule. Une route statique reste dans la table même si le lien est mort.
+
+|  | RIP | OSPF |
+| --- | --- | --- |
+| Critère de choix | nombre de sauts | coût total (lié à la bande passante) |
+| Type | vecteur de distance | à état de liens |
+| AD | 120 | 110 |
+| Messages périodiques | table entière toutes les 30 s | Hello toutes les 10 s |
+| Limite | 15 sauts | prévu pour de grands réseaux |
+
+Exemple : chemin X (deux liens de coût 10 + 10 = 20) contre chemin Y (un lien de coût 30). OSPF choisit X (coût plus faible), RIP choisit Y (un seul saut).
+
+**Voisinage** : Hello toutes les 10 s, dead interval de 40 s (4 fois le Hello) par défaut sur Ethernet. Ces valeurs doivent être identiques sur les deux routeurs voisins, sinon ils ne deviennent pas voisins. Si le lien reste allumé mais que le voisin ne répond plus, la panne n'est déclarée qu'après 40 s (BFD permet de détecter plus vite).
+
+**Zones (areas)** : dans un grand réseau, l'AS est découpé en zones reliées à l'**Area 0** (backbone). Un routeur ne détient que la carte de sa zone, donc une panne dans une zone ne fait recalculer que cette zone. Un routeur qui touche deux zones est un ABR.
+
 ## Méthode de diagnostic
 
 Suivre le paquet saut par saut jusqu'à l'endroit où il s'arrête : cet endroit désigne la cause. Un seul changement à la fois, une vérification après chaque changement.
