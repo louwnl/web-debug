@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // Génère data/fiche.js (onglet Fiche) à partir de fiche/fiche-reseau.md.
 // Markdown simple : titres # et ##, paragraphes, listes - et 1., tableaux,
-// **gras** et `code`. La ligne <!-- schema: nom --> insère fiche/nom.svg.
+// **gras**, *italique* et `code`. La ligne <!-- schema: nom --> insère fiche/nom.svg.
 // Usage : node tools/generer-fiche.js  (après chaque modification de la fiche)
 
 const fs = require("fs");
@@ -19,7 +19,7 @@ function enLigne(texte) {
     .map((bout) =>
       bout.startsWith("`") && bout.endsWith("`") && bout.length > 1
         ? `<code>${echapper(bout.slice(1, -1))}</code>`
-        : echapper(bout).replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
+        : echapper(bout).replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>").replace(/\*([^*\s][^*]*?)\*/g, "<em>$1</em>")
     )
     .join("");
 }
